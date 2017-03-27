@@ -1,0 +1,9 @@
+cxx_binary(
+  name = 'state_machine',
+  srcs = [
+    'state_machine.c',
+  ],
+  deps = [
+    '//:openssl',
+  ],
+)

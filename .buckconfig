@@ -1,0 +1,5 @@
+[build]
+  engine = deep
+
+[build]
+  depfiles = disabled

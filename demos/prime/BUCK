@@ -1,0 +1,9 @@
+cxx_binary(
+  name = 'prime',
+  srcs = [
+    'prime.c',
+  ],
+  deps = [
+    '//:openssl',
+  ],
+)
