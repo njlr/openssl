@@ -1,3 +1,10 @@
+utils = glob([
+  'Configure',
+  'util/pod2mantest',
+  'util/**/*.sh',
+  'util/**/*.pl',
+])
+
 genrule(
   name = 'make',
   out = 'make',
@@ -58,7 +65,7 @@ genrule(
     'Makefile.*',
     'TABLE',
   ]),
-  cmd = 'cp -r $SRCDIR $OUT && cd $OUT && ./Configure shared darwin64-x86_64-cc --prefix=$OUT/build --openssldir=$OUT/build/openssl && make && make install ',
+  cmd = 'cp -r $SRCDIR $OUT && cd $OUT && chmod +x ' + " ".join(utils) + ' && ./Configure shared darwin64-x86_64-cc --prefix=$OUT/build --openssldir=$OUT/build/openssl && make && make install ',
 )
 
 headers = [
