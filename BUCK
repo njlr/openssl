@@ -1,4 +1,4 @@
-utils = glob([
+tools = glob([
   'Configure',
   'util/pod2mantest',
   'util/**/*.sh',
@@ -65,7 +65,23 @@ genrule(
     'Makefile.*',
     'TABLE',
   ]),
-  cmd = 'cp -r $SRCDIR $OUT && cd $OUT && chmod +x ' + " ".join(utils) + ' && ./Configure shared darwin64-x86_64-cc --prefix=$OUT/build --openssldir=$OUT/build/openssl && make && make install ',
+  cmd = 'platform=\$(case $(uname) in ' +
+    '("Linux") ' +
+    '  echo "linux-x86_64" ' +
+    ';; ' +
+    '("Darwin") ' +
+    '  echo "darwin64-x86_64-cc" ' +
+    ';; ' +
+    '(*) ' +
+    '  echo "Unknown" ' +
+    ';; ' +
+  'esac); ' +
+  'cp -r $SRCDIR $OUT && ' +
+  'cd $OUT && ' +
+  'chmod +x ' + ' '.join(tools) + ' && ' +
+  './Configure shared $platform --prefix=$OUT/build --openssldir=$OUT/build/openssl && ' +
+  'make && ' +
+  'make install'
 )
 
 headers = [
