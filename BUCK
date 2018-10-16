@@ -240,12 +240,10 @@ prebuilt_cxx_library(
   platform_shared_lib = [
     ('^macos.*', ':ssl-shared-macos'), 
     ('^linux.*', ':ssl-shared-linux'), 
-    ('.*', ':ssl-shared-linux'), 
   ], 
   platform_static_lib = [
     ('^macos.*', ':ssl-static-macos'), 
     ('^linux.*', ':ssl-static-linux'), 
-    ('.*', ':ssl-static-linux'), 
   ], 
 )
 
