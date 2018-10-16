@@ -81,7 +81,7 @@ genrule(
   'cd $TMP && ' +
   'chmod +x ' + ' '.join(tools) + ' && ' +
   './Configure shared $platform --prefix=$OUT/build --openssldir=$OUT/build/openssl && ' +
-  'make -j4 && ' + 
+  'make && ' + 
   'make install'
 )
 
