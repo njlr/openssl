@@ -174,49 +174,49 @@ def extract(x):
 genrule(
   name = 'crypto-shared-macos', 
   out = 'libcrypto.dylib', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.dylib', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.dylib $OUT', 
 )
 
 genrule(
   name = 'crypto-static-macos', 
   out = 'libcrypto.a', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.a', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.a $OUT', 
 )
 
 genrule(
   name = 'crypto-shared-linux', 
   out = 'libcrypto.so', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.so', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.so $OUT', 
 )
 
 genrule(
   name = 'crypto-static-linux', 
   out = 'libcrypto.a', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.a', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.a $OUT', 
 )
 
 genrule(
   name = 'ssl-shared-macos', 
   out = 'libssl.dylib', 
-  cmd = 'cp $(location :make)/build/lib/libssl.dylib', 
+  cmd = 'cp $(location :make)/build/lib/libssl.dylib $OUT', 
 )
 
 genrule(
   name = 'ssl-static-macos', 
   out = 'libssl.a', 
-  cmd = 'cp $(location :make)/build/lib/libssl.a', 
+  cmd = 'cp $(location :make)/build/lib/libssl.a $OUT', 
 )
 
 genrule(
   name = 'ssl-shared-linux', 
   out = 'libssl.so', 
-  cmd = 'cp $(location :make)/build/lib/libssl.so', 
+  cmd = 'cp $(location :make)/build/lib/libssl.so $OUT', 
 )
 
 genrule(
   name = 'ssl-static-linux', 
   out = 'libssl.a', 
-  cmd = 'cp $(location :make)/build/lib/libssl.a', 
+  cmd = 'cp $(location :make)/build/lib/libssl.a $OUT', 
 )
 
 prebuilt_cxx_library(
