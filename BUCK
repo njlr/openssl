@@ -7,7 +7,7 @@ tools = glob([
 
 genrule(
   name = 'make',
-  out = 'make',
+  out = 'out',
   srcs = glob([
     'apps/**/*',
     'apps/**/*.h',
@@ -76,11 +76,12 @@ genrule(
     '  echo "Unknown" ' +
     ';; ' +
   'esac); ' +
-  'cp -r $SRCDIR $OUT && ' +
-  'cd $OUT && ' +
+  'cp -r $SRCDIR/. $TMP && ' + 
+  'mkdir -p $OUT && ' + 
+  'cd $TMP && ' +
   'chmod +x ' + ' '.join(tools) + ' && ' +
   './Configure shared $platform --prefix=$OUT/build --openssldir=$OUT/build/openssl && ' +
-  'make && ' +
+  'make -j4 && ' + 
   'make install'
 )
 
@@ -170,26 +171,82 @@ def extract(x):
   )
   return ':' + x
 
+genrule(
+  name = 'crypto-shared-macos', 
+  out = 'libcrypto.dylib', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.dylib', 
+)
+
+genrule(
+  name = 'crypto-static-macos', 
+  out = 'libcrypto.a', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.a', 
+)
+
+genrule(
+  name = 'crypto-shared-linux', 
+  out = 'libcrypto.so', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.so', 
+)
+
+genrule(
+  name = 'crypto-static-linux', 
+  out = 'libcrypto.a', 
+  cmd = 'cp $(location :make)/build/lib/libcrypto.a', 
+)
+
+genrule(
+  name = 'ssl-shared-macos', 
+  out = 'libssl.dylib', 
+  cmd = 'cp $(location :make)/build/lib/libssl.dylib', 
+)
+
+genrule(
+  name = 'ssl-static-macos', 
+  out = 'libssl.a', 
+  cmd = 'cp $(location :make)/build/lib/libssl.a', 
+)
+
+genrule(
+  name = 'ssl-shared-linux', 
+  out = 'libssl.so', 
+  cmd = 'cp $(location :make)/build/lib/libssl.so', 
+)
+
+genrule(
+  name = 'ssl-static-linux', 
+  out = 'libssl.a', 
+  cmd = 'cp $(location :make)/build/lib/libssl.a', 
+)
+
 prebuilt_cxx_library(
   name = 'crypto',
   header_namespace = 'openssl',
-  lib_name = 'crypto',
-  lib_dir = '$(location :make)/build/lib',
-  # preferred_linkage = 'static',
-  deps = [
-    ':make',
-  ],
+  platform_shared_lib = [
+    ('^macos.*', ':crypto-shared-macos'), 
+    ('^linux.*', ':crypto-shared-linux'), 
+    ('.*', ':crypto-shared-linux'), 
+  ], 
+  platform_static_lib = [
+    ('^macos.*', ':crypto-static-macos'), 
+    ('^linux.*', ':crypto-static-linux'), 
+    ('.*', ':crypto-static-linux'), 
+  ], 
 )
 
 prebuilt_cxx_library(
   name = 'ssl',
   header_namespace = 'openssl',
-  lib_name = 'ssl',
-  lib_dir = '$(location :make)/build/lib',
-  # preferred_linkage = 'static',
-  deps = [
-    ':make',
-  ],
+  platform_shared_lib = [
+    ('^macos.*', ':ssl-shared-macos'), 
+    ('^linux.*', ':ssl-shared-linux'), 
+    ('.*', ':ssl-shared-linux'), 
+  ], 
+  platform_static_lib = [
+    ('^macos.*', ':ssl-static-macos'), 
+    ('^linux.*', ':ssl-static-linux'), 
+    ('.*', ':ssl-static-linux'), 
+  ], 
 )
 
 prebuilt_cxx_library(
@@ -201,7 +258,6 @@ prebuilt_cxx_library(
     ':crypto',
     ':ssl',
   ],
-  # preferred_linkage = 'static',
   visibility = [
     'PUBLIC',
   ],

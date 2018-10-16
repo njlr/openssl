@@ -1,5 +1,8 @@
+[project]
+  ignore = .git
+
 [build]
   engine = deep
 
-[build]
-  depfiles = disabled
+[cxx]
+  should_remap_host_platform = true
