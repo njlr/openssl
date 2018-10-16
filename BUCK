@@ -225,12 +225,10 @@ prebuilt_cxx_library(
   platform_shared_lib = [
     ('^macos.*', ':crypto-shared-macos'), 
     ('^linux.*', ':crypto-shared-linux'), 
-    ('.*', ':crypto-shared-linux'), 
   ], 
   platform_static_lib = [
     ('^macos.*', ':crypto-static-macos'), 
     ('^linux.*', ':crypto-static-linux'), 
-    ('.*', ':crypto-static-linux'), 
   ], 
 )
 
