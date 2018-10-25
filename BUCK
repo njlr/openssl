@@ -1,3 +1,18 @@
+from os.path import basename
+import re
+
+def clean(x):
+  return re.sub(r'[:_+\.\/\\]', '-', x.lower()).replace('--', '-')
+
+def extract(rule, path):
+  name = clean('extract-' + rule + '-' + path)
+  genrule(
+    name = name,
+    out = basename(path),
+    cmd = 'cp $(location ' + rule + ')/' + path + ' $OUT',
+  )
+  return ':' + name
+
 tools = glob([
   'Configure',
   'util/pod2mantest',
@@ -5,85 +20,162 @@ tools = glob([
   'util/**/*.pl',
 ])
 
-genrule(
-  name = 'make',
-  out = 'out',
-  srcs = glob([
-    'apps/**/*',
-    'apps/**/*.h',
-    'apps/**/*.c',
-    'apps/**/*.cnf',
-    'apps/**/*.srl',
-    'apps/**/*.pl',
-    'apps/**/*.pem',
-    'apps/**/*.in',
-    'apps/**/*.sh',
-    'apps/**/*.txt',
-    'apps/**/*.attr',
-    'apps/**/Makefile',
-    'certs/**/*.crl',
-    'certs/**/*.pem',
-    'crypto/**/*.h',
-    'crypto/**/*.c',
-    'crypto/**/*.cnf',
-    'crypto/**/*.in',
-    'crypto/**/*.inl',
-    'crypto/**/*.pl',
-    'crypto/**/*.num',
-    'crypto/**/*.txt',
-    'crypto/**/Makefile',
-    'doc/**/*.el',
-    'doc/**/*.pod',
-    'doc/**/*.txt',
-    'engines/**/*.h',
-    'engines/**/*.c',
-    'engines/**/*.bat',
-    'engines/**/*.opt',
-    'engines/**/*.mar',
-    'engines/**/*.proto',
-    'engines/**/*.ec',
-    'engines/**/Makefile',
-    'ssl/**/*.h',
-    'ssl/**/*.c',
-    'ssl/**/*.inl',
-    'ssl/**/*.pl',
-    'ssl/**/Makefile',
-    'test/**/*.h',
-    'test/**/*.c',
-    'test/**/*.inl',
-    'test/**/*.pl',
-    'test/**/Makefile',
-    'tools/**/*',
-    'util/**/*',
-    '*.h',
-    'config',
-    'Configure',
-    'FAQ',
-    'INSTALL',
-    'INSTALL.*',
-    'LICENSE',
-    'Makefile.*',
-    'TABLE',
-  ]),
-  cmd = 'platform=\$(case $(uname) in ' +
-    '("Linux") ' +
-    '  echo "linux-x86_64" ' +
-    ';; ' +
-    '("Darwin") ' +
-    '  echo "darwin64-x86_64-cc" ' +
-    ';; ' +
-    '(*) ' +
-    '  echo "Unknown" ' +
-    ';; ' +
-  'esac); ' +
-  'cp -r $SRCDIR/. $TMP && ' + 
-  'mkdir -p $OUT && ' + 
-  'cd $TMP && ' +
-  'chmod +x ' + ' '.join(tools) + ' && ' +
-  './Configure shared $platform --prefix=$OUT/build --openssldir=$OUT/build/openssl && ' +
-  'make && ' + 
-  'make install'
-)
+def configure(platform): 
+  name = clean('configure-' + platform)
+  genrule(
+    name = name,
+    out = 'out',
+    srcs = glob([
+      'apps/**/*',
+      'apps/**/*.h',
+      'apps/**/*.c',
+      'apps/**/*.cnf',
+      'apps/**/*.srl',
+      'apps/**/*.pl',
+      'apps/**/*.pem',
+      'apps/**/*.in',
+      'apps/**/*.sh',
+      'apps/**/*.txt',
+      'apps/**/*.attr',
+      'apps/**/Makefile',
+      'certs/**/*.crl',
+      'certs/**/*.pem',
+      'crypto/**/*.h',
+      'crypto/**/*.c',
+      'crypto/**/*.cnf',
+      'crypto/**/*.in',
+      'crypto/**/*.inl',
+      'crypto/**/*.pl',
+      'crypto/**/*.num',
+      'crypto/**/*.txt',
+      'crypto/**/Makefile',
+      'doc/**/*.el',
+      'doc/**/*.pod',
+      'doc/**/*.txt',
+      'engines/**/*.h',
+      'engines/**/*.c',
+      'engines/**/*.bat',
+      'engines/**/*.opt',
+      'engines/**/*.mar',
+      'engines/**/*.proto',
+      'engines/**/*.ec',
+      'engines/**/Makefile',
+      'ssl/**/*.h',
+      'ssl/**/*.c',
+      'ssl/**/*.inl',
+      'ssl/**/*.pl',
+      'ssl/**/Makefile',
+      'test/**/*.h',
+      'test/**/*.c',
+      'test/**/*.inl',
+      'test/**/*.pl',
+      'test/**/Makefile',
+      'tools/**/*',
+      'util/**/*',
+      '*.h',
+      'config',
+      'Configure',
+      'FAQ',
+      'INSTALL',
+      'INSTALL.*',
+      'LICENSE',
+      'Makefile.*',
+      'TABLE',
+    ]),
+    cmd = ' && '.join([
+      'cp -r $SRCDIR/. $TMP', 
+      'mkdir -p $OUT', 
+      'cd $TMP', 
+      'chmod +x ' + ' '.join(tools), 
+      './Configure shared ' + platform + ' --prefix=$OUT/build --openssldir=$OUT/build/openssl', 
+      'cp -r $TMP/. $OUT', 
+    ])
+  )
+  return ':' + name
+
+def make(platform): 
+  name = clean('make-' + platform)
+  genrule(
+    name = name,
+    out = 'out',
+    srcs = glob([
+      'apps/**/*',
+      'apps/**/*.h',
+      'apps/**/*.c',
+      'apps/**/*.cnf',
+      'apps/**/*.srl',
+      'apps/**/*.pl',
+      'apps/**/*.pem',
+      'apps/**/*.in',
+      'apps/**/*.sh',
+      'apps/**/*.txt',
+      'apps/**/*.attr',
+      'apps/**/Makefile',
+      'certs/**/*.crl',
+      'certs/**/*.pem',
+      'crypto/**/*.h',
+      'crypto/**/*.c',
+      'crypto/**/*.cnf',
+      'crypto/**/*.in',
+      'crypto/**/*.inl',
+      'crypto/**/*.pl',
+      'crypto/**/*.num',
+      'crypto/**/*.txt',
+      'crypto/**/Makefile',
+      'doc/**/*.el',
+      'doc/**/*.pod',
+      'doc/**/*.txt',
+      'engines/**/*.h',
+      'engines/**/*.c',
+      'engines/**/*.bat',
+      'engines/**/*.opt',
+      'engines/**/*.mar',
+      'engines/**/*.proto',
+      'engines/**/*.ec',
+      'engines/**/Makefile',
+      'ssl/**/*.h',
+      'ssl/**/*.c',
+      'ssl/**/*.inl',
+      'ssl/**/*.pl',
+      'ssl/**/Makefile',
+      'test/**/*.h',
+      'test/**/*.c',
+      'test/**/*.inl',
+      'test/**/*.pl',
+      'test/**/Makefile',
+      'tools/**/*',
+      'util/**/*',
+      '*.h',
+      'config',
+      'Configure',
+      'FAQ',
+      'INSTALL',
+      'INSTALL.*',
+      'LICENSE',
+      'Makefile.*',
+      'TABLE',
+    ]),
+    cmd = ' && '.join([
+      'cp -r $SRCDIR/. $TMP', 
+      'mkdir -p $OUT', 
+      'cd $TMP', 
+      'chmod +x ' + ' '.join(tools), 
+      './Configure shared ' + platform + ' --prefix=$OUT/build --openssldir=$OUT/build/openssl', 
+      'make -j4', 
+      'make install', 
+    ])
+  )
+  return ':' + name
+
+linux_make = make('linux-x86_64')
+macos_make = make('darwin64-x86_64-cc')
+windows_make = make('VC-WIN64I')
+ios_make = make('iphoneos-cross')
+
+linux_configure = configure('linux-x86_64')
+macos_configure = configure('darwin64-x86_64-cc')
+windows_configure = configure('VC-WIN64I')
+ios_configure = configure('iphoneos-cross')
 
 headers = [
   'aes.h',
@@ -163,72 +255,25 @@ headers = [
   'x509v3.h',
 ]
 
-def extract(x):
-  genrule(
-    name = x,
-    out = x,
-    cmd = 'cp $(location :make)/build/include/openssl/' + x + ' $OUT',
-  )
-  return ':' + x
+extracted_headers = [
+  'opensslconf.h',
+]
 
-genrule(
-  name = 'crypto-shared-macos', 
-  out = 'libcrypto.dylib', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.dylib $OUT', 
-)
-
-genrule(
-  name = 'crypto-static-macos', 
-  out = 'libcrypto.a', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.a $OUT', 
-)
-
-genrule(
-  name = 'crypto-shared-linux', 
-  out = 'libcrypto.so', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.so $OUT', 
-)
-
-genrule(
-  name = 'crypto-static-linux', 
-  out = 'libcrypto.a', 
-  cmd = 'cp $(location :make)/build/lib/libcrypto.a $OUT', 
-)
-
-genrule(
-  name = 'ssl-shared-macos', 
-  out = 'libssl.dylib', 
-  cmd = 'cp $(location :make)/build/lib/libssl.dylib $OUT', 
-)
-
-genrule(
-  name = 'ssl-static-macos', 
-  out = 'libssl.a', 
-  cmd = 'cp $(location :make)/build/lib/libssl.a $OUT', 
-)
-
-genrule(
-  name = 'ssl-shared-linux', 
-  out = 'libssl.so', 
-  cmd = 'cp $(location :make)/build/lib/libssl.so $OUT', 
-)
-
-genrule(
-  name = 'ssl-static-linux', 
-  out = 'libssl.a', 
-  cmd = 'cp $(location :make)/build/lib/libssl.a $OUT', 
-)
+def extract_header(rule, header):
+  return extract(rule, 'include/openssl/' + header)
 
 prebuilt_cxx_library(
   name = 'crypto',
   header_namespace = 'openssl',
   platform_shared_lib = [
-    ('^macos.*', ':crypto-shared-macos'), 
-    ('^linux.*', ':crypto-shared-linux'), 
+    ('macos.*', extract(macos_make, 'build/lib/libcrypto.dylib')), 
+    ('linux.*', extract(linux_make, 'build/lib/libcrypto.so')), 
+    ('iphone.*', extract(ios_make, 'build/lib/libcrypto.dylib')), 
   ], 
   platform_static_lib = [
-    ('^macos.*', ':crypto-static-macos'), 
-    ('^linux.*', ':crypto-static-linux'), 
+    ('macos.*', extract(macos_make, 'build/lib/libcrypto.a')), 
+    ('linux.*', extract(linux_make, 'build/lib/libcrypto.a')), 
+    ('iphone.*', extract(ios_make, 'build/lib/libcrypto.a')), 
   ], 
 )
 
@@ -236,12 +281,14 @@ prebuilt_cxx_library(
   name = 'ssl',
   header_namespace = 'openssl',
   platform_shared_lib = [
-    ('^macos.*', ':ssl-shared-macos'), 
-    ('^linux.*', ':ssl-shared-linux'), 
+    ('macos.*', extract(macos_make, 'build/lib/libssl.dylib')), 
+    ('linux.*', extract(linux_make, 'build/lib/libssl.so')), 
+    ('iphone.*', extract(ios_make, 'build/lib/libssl.dylib')), 
   ], 
   platform_static_lib = [
-    ('^macos.*', ':ssl-static-macos'), 
-    ('^linux.*', ':ssl-static-linux'), 
+    ('macos.*', extract(macos_make, 'build/lib/libssl.a')), 
+    ('linux.*', extract(linux_make, 'build/lib/libssl.a')), 
+    ('iphone.*', extract(ios_make, 'build/lib/libssl.a')), 
   ], 
 )
 
@@ -249,7 +296,11 @@ prebuilt_cxx_library(
   name = 'openssl',
   header_only = True,
   header_namespace = 'openssl',
-  exported_headers = dict({ (x, extract(x)) for x in headers }),
+  exported_platform_headers = [
+    ('^macos.*', dict({ (x, extract_header(macos_configure, x)) for x in headers })),
+    ('^linux.*', dict({ (x, extract_header(linux_configure, x)) for x in headers })),
+    ('^iphone.*', dict({ (x, extract_header(ios_configure, x)) for x in headers })),
+  ], 
   exported_deps = [
     ':crypto',
     ':ssl',
@@ -257,4 +308,14 @@ prebuilt_cxx_library(
   visibility = [
     'PUBLIC',
   ],
+)
+
+cxx_binary(
+  name = 'sha256', 
+  srcs = [
+    'sha256.cpp', 
+  ],
+  deps = [
+    ':openssl', 
+  ], 
 )
